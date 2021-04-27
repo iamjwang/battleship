@@ -1,9 +1,7 @@
 package org.cis120.battleship;
 
 /**
- * CIS 120 HW09 - TicTacToe Demo
- * (c) University of Pennsylvania
- * Created by Bayley Tuch, Sabrina Green, and Nicolas Corona in Fall 2020.
+ * Battleship
  */
 
 import java.awt.*;
@@ -23,14 +21,14 @@ import javax.swing.*;
  * implements a bit of controller functionality through the reset
  * button, and then instantiates a GameBoard. The GameBoard will
  * handle the rest of the game's view and controller functionality, and
- * it will instantiate a TicTacToe object to serve as the game's model.
+ * it will instantiate a Battleship object to serve as the game's model.
  */
-public class RunTicTacToe implements Runnable {
+public class RunBattleship implements Runnable {
     public void run() {
         // NOTE: the 'final' keyword denotes immutability even for local variables.
-
+    	
         // Top-level frame in which game components live
-        final JFrame frame = new JFrame("TicTacToe");
+        final JFrame frame = new JFrame("Battleship");
         frame.setLocation(300, 300);
 
         // Status panel
@@ -39,10 +37,19 @@ public class RunTicTacToe implements Runnable {
         final JLabel status = new JLabel("Setting up...");
         status_panel.add(status);
 
-        // Game board
-        final GameBoard board = new GameBoard(status);
-        frame.add(board, BorderLayout.CENTER);
-
+        // Game board A
+        final GameBoard boardA = new GameBoard(status);
+        frame.add(boardA, BorderLayout.LINE_START);
+        
+        // Spacer panel
+        final JPanel spacer_panel = new JPanel();
+        frame.add(spacer_panel, BorderLayout.CENTER);
+        final JLabel spacer = new JLabel(" ");
+        
+        // Game board B
+        final GameBoard boardB = new GameBoard(status);
+        frame.add(boardB, BorderLayout.LINE_END);
+        
         // Reset button
         final JPanel control_panel = new JPanel();
         frame.add(control_panel, BorderLayout.NORTH);
@@ -54,7 +61,8 @@ public class RunTicTacToe implements Runnable {
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                board.reset();
+                boardA.reset();
+                boardB.reset();
             }
         });
         control_panel.add(reset);
@@ -63,8 +71,9 @@ public class RunTicTacToe implements Runnable {
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
+        
         // Start the game
-        board.reset();
+        boardA.reset();
+        boardB.reset();
     }
 }
