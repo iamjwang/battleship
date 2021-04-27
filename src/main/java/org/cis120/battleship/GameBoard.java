@@ -29,7 +29,7 @@ public class GameBoard extends JPanel {
 
     private Battleship bship; // model for the game
     private JLabel status; // current status text
-
+    
     // Game constants
     public static final int BOARD_WIDTH = 300;
     public static final int BOARD_HEIGHT = 300;
@@ -58,8 +58,12 @@ public class GameBoard extends JPanel {
                 Point p = e.getPoint();
                 
                 // updates the model given the coordinates of the mouseclick
-                bship.playTurn(p.x / 30, p.y / 30);
-
+                if (p.getX() < 150) {
+                    bship.playTurn(p.x / 30, p.y / 30, true);
+                } else {
+                	bship.playTurn(p.x / 30, p.y / 30, false);
+                }
+                
                 updateStatus(); // updates the status JLabel
                 repaint(); // repaints the game board
             }
@@ -82,21 +86,17 @@ public class GameBoard extends JPanel {
      * Updates the JLabel to reflect the current state of the game.
      */
     private void updateStatus() {
-        int x = bship.getShipsSunk();
+        int x = bship.checkWinner();
     	
-    	status.setText("Ships you've sunk: " + x);
-    	if (bship.getCurrentPlayer()) {
-            status.setText("Player 1's Turn");
-        } else {
-            status.setText("Player 2's Turn");
-        }
-
-        int winner = bship.checkWinner();
-        if (winner == 1) {
-            status.setText("Player 1 wins!");
-        } else if (winner == 2) {
-            status.setText("Player 2 wins!");
-        }
+        if (x == 0) {
+        	status.setText("Keep battling! ~(O_O)~");
+        } else if (x == 1) {
+        	status.setText("You won! :D");
+        } else if (x == 2) {
+        	status.setText("Aww... Robot won :(");
+        } else if (x == 3) {
+        	status.setText("It's a tie! -.-");
+        }        
     }
 
     /**
@@ -140,13 +140,15 @@ public class GameBoard extends JPanel {
         // Draws X's and O's
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                int state = bship.getCell(j, i);
+                int state = bship.getCell(j, i, true);
                 if (state == 1) {
                     g.drawOval(30 * j + 13, 30 * i + 22, 3, 3);
                     g.drawLine(30 * j + 15, 30 * i + 5, 15 + 30 * j, 19 + 30 * i);
                 } else if (state == 2) {
                     g.drawLine(30 * j, 30 * i, 30 + 30 * j, 30 + 30 * i);
                     g.drawLine(30 * j, 30 + 30 * i, 30 + 30 * j, 30 * i);
+                } else if (state == 3) {
+                	g.drawOval(30 * j + 13, 30 * i + 22, 3, 3);
                 }
             }
         }

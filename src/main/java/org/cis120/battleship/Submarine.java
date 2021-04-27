@@ -7,12 +7,12 @@ package org.cis120.battleship;
 /**
  * This class is an abstract class for a ship
  */
-public class FishingBoat implements Ship {
+public class Submarine implements Ship {
 
     private boolean horiz; // Does the ship only occupy one row?   
     private int bowCol;
 	private int bowRow;
-	private final int shipType = 0; // 0 if fishing boat, 
+	private final int shipType = 2; // 2 if Submarine 
 	
 	/** 
 	 * Since we are considering index 0 to be the bow, and for the ships to only be facing up or the left, 
@@ -30,7 +30,7 @@ public class FishingBoat implements Ship {
 	// Note that all ships are of length 3
 	
     // Constructor
-    public FishingBoat(boolean horizontal, int bowCol, int bowRow, int[] hit) {
+    public Submarine(boolean horizontal, int bowCol, int bowRow, int[] hit) {
     	if (bowRow > 10 || bowRow < 0 || bowCol > 10 || bowCol < 0) {
     		throw new IllegalArgumentException("Invalid ship location");
     	} else {

@@ -46,6 +46,7 @@ public interface Ship {
      * 0: Fishing boat, normal and 3-long
      * 1: Oiltanker ship explodes when hit in a 1-square radius from all angles (3-long)
      * 2: Submarine, Once hit, the entire ship sinks immediately (3-long)
+     * 3: MissedSquare, An empty square that has been fired at
      */
     public int getShipType();
     

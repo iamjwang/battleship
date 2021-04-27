@@ -37,23 +37,14 @@ public class RunBattleship implements Runnable {
         final JLabel status = new JLabel("Setting up...");
         status_panel.add(status);
 
-        // Game board A
-        final GameBoard boardA = new GameBoard(status);
-        frame.add(boardA, BorderLayout.LINE_START);
-        
-        // Spacer panel
-        final JPanel spacer_panel = new JPanel();
-        frame.add(spacer_panel, BorderLayout.CENTER);
-        final JLabel spacer = new JLabel(" ");
-        
-        // Game board B
-        final GameBoard boardB = new GameBoard(status);
-        frame.add(boardB, BorderLayout.LINE_END);
+        // Game board
+        final GameBoard board = new GameBoard(status);
+        frame.add(board, BorderLayout.CENTER);
         
         // Reset button
         final JPanel control_panel = new JPanel();
         frame.add(control_panel, BorderLayout.NORTH);
-
+        
         // Note here that when we add an action listener to the reset button, we
         // define it as an anonymous inner class that is an instance of
         // ActionListener with its actionPerformed() method overridden. When the
@@ -61,8 +52,7 @@ public class RunBattleship implements Runnable {
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardA.reset();
-                boardB.reset();
+                board.reset();
             }
         });
         control_panel.add(reset);
@@ -73,7 +63,6 @@ public class RunBattleship implements Runnable {
         frame.setVisible(true);
         
         // Start the game
-        boardA.reset();
-        boardB.reset();
+        board.reset();
     }
 }

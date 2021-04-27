@@ -7,12 +7,11 @@ package org.cis120.battleship;
 /**
  * This class is an abstract class for a ship
  */
-public class FishingBoat implements Ship {
+public class MissedSquare implements Ship {
 
-    private boolean horiz; // Does the ship only occupy one row?   
     private int bowCol;
 	private int bowRow;
-	private final int shipType = 0; // 0 if fishing boat, 
+	private final int shipType = 3; // 3 if missed square 
 	
 	/** 
 	 * Since we are considering index 0 to be the bow, and for the ships to only be facing up or the left, 
@@ -26,20 +25,16 @@ public class FishingBoat implements Ship {
 	 * Note: If the whole Ship object is null, this indicates the square does NOT
 	 * contain the ship, and has not been explored
 	 */
-	private int[] hit;
-	// Note that all ships are of length 3
-	
+	private final int[] hit = {1};
+		
     // Constructor
-    public FishingBoat(boolean horizontal, int bowCol, int bowRow, int[] hit) {
+    public MissedSquare(int bowCol, int bowRow) {
     	if (bowRow > 10 || bowRow < 0 || bowCol > 10 || bowCol < 0) {
     		throw new IllegalArgumentException("Invalid ship location");
     	} else {
     		this.bowRow = bowRow;
         	this.bowCol = bowCol;
     	}
-    	    	
-    	this.horiz = horizontal; 
-    	this.hit = hit;    	
     }
 
     /**
@@ -70,12 +65,12 @@ public class FishingBoat implements Ship {
      * Getter for horizontality/orientation
      */
     public boolean getHoriz() {
-    	return this.horiz;
+    	return false; // Horizontality is irrelevant for single missed square
     }
     
     // Setter for horizontality
     public void setHoriz(boolean horizontality) {
-    	this.horiz = horizontality;
+    	return; // Horizontality is irrelevant for single missed square
     }
     
     /**
@@ -89,7 +84,7 @@ public class FishingBoat implements Ship {
      * Setter for hit int array
      */
     public void setHit(int pos, int status) {
-    	this.hit[pos] = status;
+    	return; // hit array is final
     }
     
     /**
@@ -109,17 +104,6 @@ public class FishingBoat implements Ship {
      * @return false if ship has not been sunk, true if ship has been sunk
      */
     public boolean checkSunkYet() {
-    	int sunkCtr = 3;
-    	for (int i = 0; i < 3; i++) {
-    		if (hit[i] == 2) {
-    			sunkCtr--;
-    		}
-    	}
-    	
-    	if (sunkCtr == 0) {
-    		return true;
-    	}
-    	
-    	return false;
+    	return false; // Not a ship
     }
 }
