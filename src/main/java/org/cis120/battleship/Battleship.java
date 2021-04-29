@@ -23,8 +23,8 @@ package org.cis120.battleship;
  */
 public class Battleship {
 
-    private Ship[][] boardLeft; // Hidden computer's board
-    private Ship[][] boardRight; // Player 1's board
+    private Ship[][] board; // Opponent's board 
+    private int numTurns = 29;
     private boolean gameOver;
     
     /**
@@ -32,6 +32,24 @@ public class Battleship {
      */
     public Battleship() {
         reset();
+    }
+    
+    /**
+     * Getter for number of turns
+     * 
+     * @return int for the number of Turns left
+     */
+    public int getNumTurns() {
+    	return this.numTurns;
+    }
+    
+    /**
+     * Getter for board
+     * 
+     * @return int 2D array for board
+     */
+    public Ship[][] getBoard() {
+    	return this.board;
     }
     
     /**
@@ -45,30 +63,22 @@ public class Battleship {
      * @param r row to play in
      * @return whether the turn was successful
      */
-    public boolean playTurn(int c, int r, boolean oppTurn) {
-        Ship[][] inputBoard = null;
-    	
-    	if (oppTurn) {
-        	inputBoard = boardLeft;
-        } else {
-        	inputBoard = boardRight;
-        }
-    	
+    public boolean playTurn(int c, int r) {    	
     	if (gameOver) {
             return false;
         }
         
-        if (inputBoard[r][c] == null) {
-        	int[] tempArr = {1};
+        if (board[r][c] == null) {
         	Ship empty = new MissedSquare(c, r);
-        	inputBoard[r][c] = empty;
+        	numTurns--;
+        	board[r][c] = empty;
         	return true;
         }
         
-        int hitPos = getHitPos(c, r, oppTurn);
+        int firePos = getHitPos(c, r);
     	
-        int bRow = inputBoard[r][c].getBowRow();
-    	int bCol = inputBoard[r][c].getBowCol();
+        int bRow = board[r][c].getBowRow();
+    	int bCol = board[r][c].getBowCol();
         
     	// Initialize booleans for whether there is space on each side of the ship
     	boolean oppN = false;
@@ -76,16 +86,15 @@ public class Battleship {
     	boolean oppS = false;
     	boolean oppW = false;
     	
-    	switch((inputBoard[r][c].getHit())[hitPos]) {
-    		case 0: inputBoard[r][c].setHit(hitPos, 2);
-    				if (inputBoard[r][c].getShipType() == 0) {
-    					checkWinner();
-    					return true;
-    				} else if (inputBoard[r][c].getShipType() == 1) {
+    	int explosionCtr = 0; // Will be added to boost numTurns if player successfully sinks oilTanker
+    	
+    	switch((board[r][c].getHit())[firePos]) {
+    		case 0: board[r][c].setHit(firePos, 2);    				
+    				if (board[r][c].getShipType() == 1) {
     					// If the OilTanker has not been sunk yet, don't explode
-    					if (inputBoard[r][c].checkSunkYet()) {
+    					if (board[r][c].checkSunkYet()) {
     						// If the ship is an OilTanker, explode everything around it within a 1-square radius
-        					if (inputBoard[r][c].getHoriz()) {
+        					if (board[r][c].getHoriz()) {
         						// Check the sides for horizontal ship
         						if (bCol >= 1 && bCol <= 6) {
         							oppE = true;
@@ -107,42 +116,56 @@ public class Battleship {
         						
         						// Play the sides if valid
         						if (oppE) {
-        							playTurn(c + 3, r, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol + 3, bRow);
         						}
         						
         						if (oppW) {
-        							playTurn(c - 1, r, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow);
         						}
         						
         						if (oppS) {
-        							playTurn(c, r + 1, oppTurn);
-        							playTurn(c + 1, r + 1, oppTurn);
-        							playTurn(c + 2, r + 1, oppTurn);
+        							explosionCtr++;
+        							explosionCtr++;
+        							explosionCtr++;
+        							playTurn(bCol, bRow + 1);
+        							playTurn(bCol + 1, bRow + 1);
+        							playTurn(bCol + 2, bRow + 1);
         						}
         						
         						if (oppN) {
-        							playTurn(c, r - 1, oppTurn);
-        							playTurn(c + 1, r - 1, oppTurn);
-        							playTurn(c + 2, r - 1, oppTurn);
+        							explosionCtr++;
+        							explosionCtr++;
+        							explosionCtr++;
+        							playTurn(bCol, bRow - 1);
+        							playTurn(bCol + 1, bRow - 1);
+        							playTurn(bCol + 2, bRow - 1);
         						}
         						
         						// Play the four corners too
         						if (oppN && oppE) {
-        							playTurn(c + 3, r - 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol + 3, bRow - 1);
         						}
         						
         						if (oppN && oppW) {
-        							playTurn(c - 1, r - 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow - 1);
         						}
         						
         						if (oppS && oppE) {
-        							playTurn(c + 3, r + 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol + 3, bRow + 1);
         						}
         						
         						if (oppS && oppW) {
-        							playTurn(c - 1, r + 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow + 1);
         						}
         						
+        						// Added to boost numTurns as player successfully sunk oilTanker
+        						numTurns += explosionCtr + 2;
         					} else {
         						// Check the sides for vertical ship
         						if (bCol >= 1 && bCol <= 8) {
@@ -165,179 +188,81 @@ public class Battleship {
         						
         						// Play the sides if valid
         						if (oppN) {
-        							playTurn(c, r - 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol, bRow - 1);
         						}
         						
         						if (oppS) {
-        							playTurn(c, r + 3, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol, bRow + 3);
         						}
         						
         						if (oppE) {
-        							playTurn(c + 1, r, oppTurn);
-        							playTurn(c + 1, r + 1, oppTurn);
-        							playTurn(c + 1, r + 2, oppTurn);
+        							explosionCtr++;
+        							explosionCtr++;
+        							explosionCtr++;
+        							playTurn(bCol + 1, bRow);
+        							playTurn(bCol + 1, bRow + 1);
+        							playTurn(bCol + 1, bRow + 2);
         						}
         						
         						if (oppW) {
-        							playTurn(c - 1, r, oppTurn);
-        							playTurn(c - 1, r + 1, oppTurn);
-        							playTurn(c - 1, r + 2, oppTurn);
+        							explosionCtr++;
+        							explosionCtr++;
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow);
+        							playTurn(bCol - 1, bRow + 1);
+        							playTurn(bCol - 1, bRow + 2);
         						}
         						
         						// Play the four corners too
         						if (oppN && oppE) {
-        							playTurn(c + 1, r - 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol + 1, bRow - 1);
         						}
         						
         						if (oppN && oppW) {
-        							playTurn(c - 1, r - 1, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow - 1);
         						}
         						
         						if (oppS && oppE) {
-        							playTurn(c + 1, r + 3, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol + 1, bRow + 3);
         						}
         						
         						if (oppS && oppW) {
-        							playTurn(c - 1, r + 3, oppTurn);
+        							explosionCtr++;
+        							playTurn(bCol - 1, bRow + 3);
         						}
+        						
+        						// Added to boost numTurns as player successfully sunk oilTanker
+        						numTurns += explosionCtr + 2;
         					}
-        					return true;
     					}    					
+    				} else if (board[r][c].getShipType() == 2) {
+    					if (firePos == 0) {
+    						board[r][c].setHit(1, 2);
+    						board[r][c].setHit(2, 2);
+    					} else if (firePos == 1) {
+    						board[r][c].setHit(0, 2);
+    						board[r][c].setHit(2, 2);
+    					} else if (firePos == 2) {
+    						board[r][c].setHit(0, 2);
+    						board[r][c].setHit(1, 2);
+    					}				
     				}
+    				
+    				numTurns--;
+					checkWinner();
+					return true;
     		
     		case 1: return false;
     		
     		case 2: return false;
-    		
-    		case 3: inputBoard[r][c].setHit(hitPos, 2);
-			if (inputBoard[r][c].getShipType() == 0) {
-				checkWinner();
-				return true;
-			} else if (inputBoard[r][c].getShipType() == 1) {
-				// If the OilTanker has not been sunk yet, don't explode
-				if (inputBoard[r][c].checkSunkYet()) {
-					// If the ship is an OilTanker, explode everything around it within a 1-square radius
-					if (inputBoard[r][c].getHoriz()) {
-						// Check the sides for horizontal ship
-						if (bCol >= 1 && bCol <= 6) {
-							oppE = true;
-							oppW = true;
-						} else if (bCol < 1) {
-							oppE = true;
-						} else if (bCol > 6) {
-							oppW = true;
-						}
-						
-						if (bRow >= 1 && bRow <= 8) {
-							oppN = true;
-							oppS = true;
-						} else if (bRow < 1) {
-							oppS = true;
-						} else if (bRow > 8) {
-							oppN = true;
-						}
-						
-						// Play the sides if valid
-						if (oppE) {
-							playTurn(c + 3, r, oppTurn);
-						}
-						
-						if (oppW) {
-							playTurn(c - 1, r, oppTurn);
-						}
-						
-						if (oppS) {
-							playTurn(c, r + 1, oppTurn);
-							playTurn(c + 1, r + 1, oppTurn);
-							playTurn(c + 2, r + 1, oppTurn);
-						}
-						
-						if (oppN) {
-							playTurn(c, r - 1, oppTurn);
-							playTurn(c + 1, r - 1, oppTurn);
-							playTurn(c + 2, r - 1, oppTurn);
-						}
-						
-						// Play the four corners too
-						if (oppN && oppE) {
-							playTurn(c + 3, r - 1, oppTurn);
-						}
-						
-						if (oppN && oppW) {
-							playTurn(c - 1, r - 1, oppTurn);
-						}
-						
-						if (oppS && oppE) {
-							playTurn(c + 3, r + 1, oppTurn);
-						}
-						
-						if (oppS && oppW) {
-							playTurn(c - 1, r + 1, oppTurn);
-						}
-						
-					} else {
-						// Check the sides for vertical ship
-						if (bCol >= 1 && bCol <= 8) {
-							oppE = true;
-							oppW = true;
-						} else if (bCol < 1) {
-							oppE = true;
-						} else if (bCol > 8) {
-							oppW = true;
-						}
-						
-						if (bRow >= 1 && bRow <= 6) {
-							oppN = true;
-							oppS = true;
-						} else if (bRow < 1) {
-							oppS = true;
-						} else if (bRow > 6) {
-							oppN = true;
-						}
-						
-						// Play the sides if valid
-						if (oppN) {
-							playTurn(c, r - 1, oppTurn);
-						}
-						
-						if (oppS) {
-							playTurn(c, r + 3, oppTurn);
-						}
-						
-						if (oppE) {
-							playTurn(c + 1, r, oppTurn);
-							playTurn(c + 1, r + 1, oppTurn);
-							playTurn(c + 1, r + 2, oppTurn);
-						}
-						
-						if (oppW) {
-							playTurn(c - 1, r, oppTurn);
-							playTurn(c - 1, r + 1, oppTurn);
-							playTurn(c - 1, r + 2, oppTurn);
-						}
-						
-						// Play the four corners too
-						if (oppN && oppE) {
-							playTurn(c + 1, r - 1, oppTurn);
-						}
-						
-						if (oppN && oppW) {
-							playTurn(c - 1, r - 1, oppTurn);
-						}
-						
-						if (oppS && oppE) {
-							playTurn(c + 1, r + 3, oppTurn);
-						}
-						
-						if (oppS && oppW) {
-							playTurn(c - 1, r + 3, oppTurn);
-						}
-					}
-					
-					return true;
-				}    					
-			}
     	}
+    	
+    	checkWinner();
     	return true;
     }
 
@@ -345,34 +270,33 @@ public class Battleship {
      * checkWinner checks whether the game has reached a win condition.
      * checkWinner only looks for horizontal wins.
      *
-     * @return 0 if nobody has won yet, 1 if player 1 has won, and 2 if player 2
-     *         has won, 3 if tied
+     * @return 0 if nobody has won yet, 1 if player has won, and 2 if opp
+     *         has won
+     * 
+     * NOTE: Game cannot be tied
      */
     public int checkWinner() {
         int shipsAfloatOpp = 15;
-        int shipsAfloatPlayer = 15;
     	
     	// Check horizontal, vertical and diagonal hits
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-            	if (boardLeft[i][j].checkSunkYet()) {
+            	if (board[i][j] == null) {
+            		continue;
+            	}
+            	
+            	if (board[i][j].checkSunkYet()) {
             		shipsAfloatOpp--;
-            	} else if (boardRight[i][j].checkSunkYet()) {
-            		shipsAfloatPlayer--;
             	}
             }        	
         }
         
-        if (shipsAfloatOpp == 0 && shipsAfloatPlayer == 0) {
-        	gameOver = true;
-        	return 3;
-        }
-        else if (shipsAfloatOpp == 0) {
-        	gameOver = true;
-        	return 1;
-        } else if (shipsAfloatPlayer == 0) {
+        if (numTurns < 1) {
         	gameOver = true;
         	return 2;
+        } else if (shipsAfloatOpp == 0) {
+        	gameOver = true;
+        	return 1;
         }
         
         // Continue game if no-one has won yet
@@ -391,20 +315,15 @@ public class Battleship {
      * Ship can only face up or left, with the bow at the front of the ship.
      * @param c
      * @param r
-     * @param inputBoard
      * @return hitPos (an int)
      */
-    public int getHitPos(int c, int r, boolean oppTurn) {
-    	Ship[][] inputBoard = null;
+    public int getHitPos(int c, int r) {   	
+    	if (board[r][c] == null) {
+    		return 0;
+    	}
     	
-    	if (oppTurn) {
-        	inputBoard = boardLeft;
-        } else {
-        	inputBoard = boardRight;
-        }
-    	
-    	int bRow = inputBoard[r][c].getBowRow();
-    	int bCol = inputBoard[r][c].getBowCol();
+    	int bRow = board[r][c].getBowRow();
+    	int bCol = board[r][c].getBowCol();
     	int hitPos = -1; // Dummy initializer
     	
     	// Compare/check Ship location to inputted row and column
@@ -413,18 +332,17 @@ public class Battleship {
     	} else if (bRow > r && bCol > c) {
     		System.out.println("Ship cannot be diagonal");
     		return -1; // Ship cannot be diagonal
-    	} else if (bRow < r && bCol < c) {
+    	} else if (bRow > r || bCol > c) {
     		System.out.println("Ship can only face up or left with bow at front");
     		return -1;
-    	} else if (bRow > r) {
+    	} else if (bRow < r) {
     		if (r - bRow > 3) {
     			System.out.println("Ship too long");
         		return -1;
     		}
     		
     		hitPos = r - bRow;
-    		
-    	} else if (bCol > c) {
+    	} else if (bCol < c) {
     		if (c - bCol > 3) {
     			System.out.println("Ship too long");
         		return -1;
@@ -432,57 +350,55 @@ public class Battleship {
     		
     		hitPos = c - bCol;
     	}
-    	
+    	    	
     	return hitPos;
     }
     
     /**
+     * Since we are considering index 0 to be the bow, and for the ships to only be facing up or the left, 
+	 * the other ship sections are in rows or cols (depending on orientation) that are of a higher number.
+	 * Status:
+	 * 0 (hidden) then the square does contain a ship and has not been explored
+	 * 1 (miss) then the square does not contain a ship and has been explored
+	 * 2 (hit) then the square does contain a ship and has been explored
+	 * 3 (null) then the square does not contain a ship and has not been explored
+	 * 
+	 * Note: If the whole Ship object is null, this indicates the square does NOT
+	 * contain the ship, and has not been explored
      * 
      * @param col
      * @param row
-     * @param oppTurn (boolean, true if it's the opposition's turn)
      * @return
      */
-    public int getCell(int c, int r, boolean oppTurn) {
-    	int hitPos = getHitPos(c, r, oppTurn);
+    public int getCell(int c, int r) {
+    	if (c > 9 || r > 9 || c < 0 || r < 0) {
+    		throw new IllegalArgumentException("Invalid grid co-ords");
+    	}
     	
-    	Ship[][] inputBoard = null;
+    	if (board[r][c] == null) {
+    		return 3;
+    	}
     	
-    	if (oppTurn) {
-        	inputBoard = boardLeft;
-        } else {
-        	inputBoard = boardRight;
-        }
+    	int hitPos = getHitPos(c, r);
     	
-    	return (inputBoard[r][c].getHit())[hitPos];
+    	return (board[r][c].getHit())[hitPos];
     }
     
     /**
      * printGameState prints the current game state
      * for debugging.
      */
-    public void printGameState() {
-    	printBoard(true);
-    	printBoard(false);
-    }
-    
-    public void printBoard(boolean oppTurn) {
-    	Ship[][] inputBoard = null;
+    public void printGameState() {	
+    	System.out.println("\n\n" + numTurns + " Turns Left:\n");
     	
-    	if (oppTurn) {
-        	inputBoard = boardLeft;
-        } else {
-        	inputBoard = boardRight;
-        }
-    	
-    	for (int i = 0; i < inputBoard.length; i++) {
-            for (int j = 0; j < inputBoard[i].length; j++) {
+    	for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
             	String symbol = "";
             	
-            	if (inputBoard[i][j] == null) {
+            	if (board[i][j] == null) {
             		symbol = "~";
             	} else {
-            		int hitStatus = (inputBoard[i][j].getHit())[getHitPos(i, j, oppTurn)];
+            		int hitStatus = getCell(j, i);
             		
             		if (hitStatus == 0) {
                 		symbol = "~";
@@ -490,8 +406,6 @@ public class Battleship {
                 		symbol = "X";
                 	} else if (hitStatus == 2) {
                 		symbol = "!";
-                	} else if (hitStatus == 3) {
-                		symbol = "O";
                 	}
             	}
            	
@@ -509,7 +423,7 @@ public class Battleship {
     }
     
     // Randomly position all of the opponent's ships upon setup
-    public void positionOppAllShips() {
+    public void positionAllShips() {
     	int fishBoatCounter = 3;
     	int oilCounter = 1;
     	int subCounter = 1;
@@ -519,46 +433,24 @@ public class Battleship {
     		
     		if (x < 0.5 && fishBoatCounter > 0) {
     			fishBoatCounter--;
-    			positionShip(0, boardLeft, false);
+    			positionShip(0, board);
     		} else if (x >= 0.5 && x < 0.75 && oilCounter > 0) {
     			oilCounter--;
-    			positionShip(1, boardLeft, false);
-    		} else if (x >= 0.5 && x < 0.75 && subCounter > 0) {
+    			positionShip(1, board);
+    		} else if (x >= 0.75 && x < 1 && subCounter > 0) {
     			subCounter--;
-    			positionShip(2, boardLeft, false);
-    		}
-    	}
-    }
-    
- // Randomly position all of the opponent's ships upon setup
-    public void positionPlayerAllShips() {
-    	int fishBoatCounter = 3;
-    	int oilCounter = 1;
-    	int subCounter = 1;
-    	
-    	while (fishBoatCounter + oilCounter + subCounter > 0) {
-    		double x = Math.random();
-    		
-    		if (x < 0.5 && fishBoatCounter > 0) {
-    			fishBoatCounter--;
-    			positionShip(0, boardRight, true);
-    		} else if (x >= 0.5 && x < 0.75 && oilCounter > 0) {
-    			oilCounter--;
-    			positionShip(1, boardRight, true);
-    		} else if (x >= 0.5 && x < 0.75 && subCounter > 0) {
-    			subCounter--;
-    			positionShip(2, boardRight, true);
+    			positionShip(2, board);
     		}
     	}
     }
     
     // Randomly position one of the opponent's ships 
-    private void positionShip(int shipType, Ship[][] inputBoard, boolean player) {
+    private void positionShip(int shipType, Ship[][] board) {
     	boolean notYetPlaced = true;
     	
     	while (notYetPlaced) {
-    		int bowRow = (int) Math.random() * 8;
-        	int bowCol = (int) Math.random() * 8;
+    		int bowRow = (int) (Math.random() * 8);
+        	int bowCol = (int) (Math.random() * 8);
         	    	
         	boolean paramHoriz = false;
         	
@@ -580,31 +472,26 @@ public class Battleship {
             	sternRow = bowRow + 2;
             }
         	
-        	if (inputBoard[bowRow][bowCol] != null || inputBoard[deckRow][deckCol] != null || inputBoard[sternRow][sternCol] != null) {
+        	if (board[bowRow][bowCol] != null || board[deckRow][deckCol] != null || board[sternRow][sternCol] != null) {
         		continue;
         	} 
         	
         	int[] oppHit = {0, 0, 0};
-        	int[] playerHit = {3, 3, 3};
         	Ship placer = null;
         	
-        	if (shipType == 0 && player) {
-    			placer = new FishingBoat(paramHoriz, bowCol, bowRow, playerHit);
-    		} else if (shipType == 0 && !player) {
+        	if (shipType == 0) {
     			placer = new FishingBoat(paramHoriz, bowCol, bowRow, oppHit);
-    		} else if (shipType == 1 && player) {
-    			placer = new OilTanker(paramHoriz, bowCol, bowRow, playerHit);
-    		} else if (shipType == 1 && !player) {
+    		} else if (shipType == 1) {
     			placer = new OilTanker(paramHoriz, bowCol, bowRow, oppHit);
-    		} else if (shipType == 2 && player) {
-    			placer = new Submarine(paramHoriz, bowCol, bowRow, playerHit);
-    		} else if (shipType == 2 && !player) {
+    		} else if (shipType == 2) {
     			placer = new Submarine(paramHoriz, bowCol, bowRow, oppHit);
     		}
         	
-        	inputBoard[bowRow][bowCol] = placer;
-			inputBoard[deckRow][deckCol] = placer;
-			inputBoard[sternRow][sternCol] = placer;
+        	notYetPlaced = false;
+        	
+        	board[bowRow][bowCol] = placer;
+			board[deckRow][deckCol] = placer;
+			board[sternRow][sternCol] = placer;
     	}
     }
     
@@ -612,10 +499,10 @@ public class Battleship {
      * reset (re-)sets the game state to start a new game.
      */
     public void reset() {
-        boardLeft = new Ship[10][10];
-        boardRight = new Ship[10][10];
-        positionOppAllShips();
-        positionPlayerAllShips();
+        board = new Ship[10][10];
+        board = new Ship[10][10];
+        positionAllShips();
+        numTurns = 30;
         gameOver = false;
     }
     
@@ -632,7 +519,20 @@ public class Battleship {
     public static void main(String[] args) {
         Battleship t = new Battleship();
 
-        t.playTurn(1, 2, true);
+        t.playTurn(1, 2);
         t.printGameState();
+        
+        System.out.println();
+        System.out.println();
+        
+        int x = t.checkWinner();
+    	
+        if (x == 0) {
+        	System.out.println("Keep going! " + t.getNumTurns() + " turns left!");
+        } else if (x == 1) {
+        	System.out.println("You won! :D");
+        } else if (x == 2) {
+        	System.out.println("Aww... Robot won :(");
+        }
     }
 }

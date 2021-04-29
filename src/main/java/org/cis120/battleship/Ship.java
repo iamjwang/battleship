@@ -5,7 +5,7 @@ package org.cis120.battleship;
  */
 
 /**
- * This class is an abstract class for a ship
+ * This class is an interface for Ships
  */
 public interface Ship {
 	

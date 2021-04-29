@@ -5,7 +5,7 @@ package org.cis120.battleship;
  */
 
 /**
- * This class is an abstract class for a ship
+ * This class is an implementation of Ship. If it gets hit once, the whole thing sinks.
  */
 public class Submarine implements Ship {
 
@@ -21,7 +21,6 @@ public class Submarine implements Ship {
 	 * 0 (hidden) then the square does contain a ship and has not been explored
 	 * 1 (miss) then the square does not contain a ship and has been explored
 	 * 2 (hit) then the square does contain a ship and has been explored
-	 * 3 (player ship) then the square does contain a ship which is the player's
 	 * 
 	 * Note: If the whole Ship object is null, this indicates the square does NOT
 	 * contain the ship, and has not been explored
@@ -90,6 +89,17 @@ public class Submarine implements Ship {
      */
     public void setHit(int pos, int status) {
     	this.hit[pos] = status;
+    	
+    	if (pos == 0) {
+			this.hit[1] = 2;
+			this.hit[2] = 2;
+		} else if (pos == 1) {
+			this.hit[0] = 2;
+			this.hit[2] = 2;
+		} else if (pos == 2) {
+			this.hit[0] = 2;
+			this.hit[1] = 2;
+		}
     }
     
     /**
@@ -110,6 +120,7 @@ public class Submarine implements Ship {
      */
     public boolean checkSunkYet() {
     	int sunkCtr = 3;
+    	
     	for (int i = 0; i < 3; i++) {
     		if (hit[i] == 2) {
     			sunkCtr--;

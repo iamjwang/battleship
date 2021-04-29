@@ -33,7 +33,7 @@ public class GameBoard extends JPanel {
     // Game constants
     public static final int BOARD_WIDTH = 300;
     public static final int BOARD_HEIGHT = 300;
-
+        
     /**
      * Initializes the game board.
      */
@@ -58,30 +58,26 @@ public class GameBoard extends JPanel {
                 Point p = e.getPoint();
                 
                 // updates the model given the coordinates of the mouseclick
-                if (p.getX() < 150) {
-                    bship.playTurn(p.x / 30, p.y / 30, true);
-                } else {
-                	bship.playTurn(p.x / 30, p.y / 30, false);
-                }
+                bship.playTurn(p.x / 30, p.y / 30);
                 
                 updateStatus(); // updates the status JLabel
                 repaint(); // repaints the game board
             }
         });
     }
-
+    
     /**
      * (Re-)sets the game to its initial state.
      */
     public void reset() {
         bship.reset();
-        status.setText("Fire at your opponent's grid on the left!");
+        status.setText("Fire!");
         repaint();
-
+        
         // Makes sure this component has keyboard/mouse focus
         requestFocusInWindow();
     }
-
+    
     /**
      * Updates the JLabel to reflect the current state of the game.
      */
@@ -89,16 +85,14 @@ public class GameBoard extends JPanel {
         int x = bship.checkWinner();
     	
         if (x == 0) {
-        	status.setText("Keep battling! ~(O_O)~");
+        	status.setText(bship.getNumTurns() + " turns left!");
         } else if (x == 1) {
         	status.setText("You won! :D");
         } else if (x == 2) {
-        	status.setText("Aww... Robot won :(");
-        } else if (x == 3) {
-        	status.setText("It's a tie! -.-");
-        }        
+        	status.setText("Aww... Enemy won :(");
+        }
     }
-
+    
     /**
      * Draws the game board.
      * 
@@ -140,15 +134,15 @@ public class GameBoard extends JPanel {
         // Draws X's and O's
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                int state = bship.getCell(j, i, true);
-                if (state == 1) {
-                    g.drawOval(30 * j + 13, 30 * i + 22, 3, 3);
-                    g.drawLine(30 * j + 15, 30 * i + 5, 15 + 30 * j, 19 + 30 * i);
-                } else if (state == 2) {
-                    g.drawLine(30 * j, 30 * i, 30 + 30 * j, 30 + 30 * i);
-                    g.drawLine(30 * j, 30 + 30 * i, 30 + 30 * j, 30 * i);
-                } else if (state == 3) {
-                	g.drawOval(30 * j + 13, 30 * i + 22, 3, 3);
+                if (bship.getBoard()[i][j] != null) {
+                	int state = bship.getCell(j, i);
+                    if (state == 2) {
+                        g.drawOval(30 * j + 13, 30 * i + 22, 3, 3);
+                        g.drawLine(30 * j + 15, 30 * i + 5, 15 + 30 * j, 19 + 30 * i);
+                    } else if (state == 1) {
+                        g.drawLine(30 * j, 30 * i, 30 + 30 * j, 30 + 30 * i);
+                        g.drawLine(30 * j, 30 + 30 * i, 30 + 30 * j, 30 * i);
+                    }
                 }
             }
         }

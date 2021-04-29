@@ -13,6 +13,8 @@ public class Game {
     public static void main(String[] args) {
         Runnable game = new org.cis120.battleship.RunBattleship(); // Set the game you want to run
                                                                      // here
+        // Runnable game = new org.cis120.tictactoe.RunTicTacToe();
+        // Runnable game = new org.cis120.mushroom.RunMushroomOfDoom();
         SwingUtilities.invokeLater(game);
     }
 }

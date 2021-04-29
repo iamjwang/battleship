@@ -5,7 +5,8 @@ package org.cis120.battleship;
  */
 
 /**
- * This class is an abstract class for a ship
+ * This class is an implementation of Ship. If it sinks, everything within a 1-square radius
+ * explodes too.
  */
 public class OilTanker implements Ship {
 	
@@ -21,7 +22,6 @@ public class OilTanker implements Ship {
 	 * 0 (hidden) then the square does contain a ship and has not been explored
 	 * 1 (miss) then the square does not contain a ship and has been explored
 	 * 2 (hit) then the square does contain a ship and has been explored
-	 * 3 (player ship) then the square does contain a ship which is the player's
 	 * 
 	 * Note: If the whole Ship object is null, this indicates the square does NOT
 	 * contain the ship, and has not been explored

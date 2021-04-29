@@ -10,9 +10,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameTest {
 
+	// Tests the game state where the enemy has won
     @Test
-    public void test() {
-        assertNotEquals("CIS 120", "CIS 160");
+    public void testOppWon() {
+        
+    	Battleship t = new Battleship();
+    	
+    	for (int i = 0; i < 6; i++) {
+    		for (int j = 0; j < 5; j++) {
+    			t.playTurn(i, j);
+    		}
+    	}
+    	            	
+        assertEquals(t.checkWinner(), 2);
     }
-
+    
+    // Tests the game state with playTurn() and checkWinner() functions
+    @Test
+    public void testGameInProgress() {
+        
+    	Battleship t = new Battleship();
+    	
+    	for (int i = 0; i < 3; i++) {
+    		for (int j = 0; j < 2; j++) {
+    			t.playTurn(i, j);
+    		}
+    	}
+    	            	
+        assertEquals(t.checkWinner(), 0);
+    }
 }
