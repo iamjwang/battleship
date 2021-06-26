@@ -36,7 +36,7 @@ public class TicTacToe {
     public TicTacToe() {
         reset();
     }
-    
+
     /**
      * playTurn allows players to play a turn. Returns true if the move is
      * successful and false if a player tries to play in a location that is
@@ -58,7 +58,7 @@ public class TicTacToe {
         } else {
             board[r][c] = 2;
         }
-        
+
         numTurns++;
         if (checkWinner() == 0) {
             player1 = !player1;

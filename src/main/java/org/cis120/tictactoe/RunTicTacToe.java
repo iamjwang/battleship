@@ -38,7 +38,7 @@ public class RunTicTacToe implements Runnable {
         frame.add(status_panel, BorderLayout.SOUTH);
         final JLabel status = new JLabel("Setting up...");
         status_panel.add(status);
-        
+
         // Game board
         final GameBoard board = new GameBoard(status);
         frame.add(board, BorderLayout.CENTER);
